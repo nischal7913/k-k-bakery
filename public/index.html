@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KK Bakery · Order Online</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fefaf5;
+            color: #2d1f14;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #b8735c;
+            color: #fff;
+            padding: 14px 36px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background: #9e5f4a;
+            transform: scale(1.02);
+        }
+
+        .btn-order {
+            background: #2d1f14;
+        }
+
+        .btn-order:hover {
+            background: #b8735c;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            padding: 20px 0;
+            background: #fffcf9;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #2d1f14;
+        }
+
+        .logo span {
+            color: #b8735c;
+        }
+
+        nav {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #2d1f14;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #b8735c;
+        }
+
+        .nav-cta {
+            background: #b8735c;
+            color: #fff;
+            padding: 8px 22px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .nav-cta:hover {
+            background: #9e5f4a;
+            color: #fff;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: 60px 0 70px;
+            text-align: center;
+            background: linear-gradient(145deg, #fefaf5 0%, #fcf3ed 100%);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.6rem, 8vw, 4.8rem);
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 700;
+            color: #b8735c;
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            max-width: 540px;
+            margin: 0 auto 32px;
+            color: #4d3426;
+            font-size: 1.1rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            padding: 70px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.4rem;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #6b4d3a;
+            margin-bottom: 44px;
+            font-size: 1.05rem;
+        }
+
+        /* ===== MENU ===== */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+        }
+
+        .menu-item {
+            background: #fff;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.10);
+        }
+
+        .menu-item .emoji-big {
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+
+        .menu-item h3 {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .menu-item .price {
+            font-weight: 700;
+            color: #b8735c;
+            font-size: 1.2rem;
+            margin: 8px 0;
+        }
+
+        .menu-item .desc {
+            font-size: 0.95rem;
+            color: #6b4d3a;
+            flex-grow: 1;
+        }
+
+        .order-btn-small {
+            background: #25d366;
+            color: #fff;
+            border: none;
+            padding: 10px 0;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 14px;
+            width: 100%;
+        }
+
+        .order-btn-small:hover {
+            background: #1da851;
+        }
+
+        /* ===== ORDER FORM ===== */
+        .form-section {
+            background: #fffcf9;
+            border-radius: 32px;
+            padding: 50px 40px;
+            max-width: 720px;
+            margin: 0 auto;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #f0e4db;
+            border-radius: 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border 0.3s;
+            background: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #b8735c;
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* ===== WHY US ===== */
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .why-item {
+            background: #fffcf9;
+            padding: 30px 20px;
+            border-radius: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .why-item .emoji-big {
+            font-size: 2.6rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* ===== CONTACT ===== */
+        .contact-section {
+            background: #fffcf9;
+            border-radius: 32px;
+            padding: 50px 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .contact-section h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .contact-details p {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .contact-details a {
+            color: #b8735c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-details a:hover {
+            text-decoration: underline;
+        }
+
+        .social-links {
+            margin-top: 20px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-links a {
+            background: #2d1f14;
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .social-links a:hover {
+            background: #b8735c;
+        }
+
+        /* ===== MAP ===== */
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ===== FORM MESSAGES ===== */
+        #form-success {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        #form-error {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-top: 1px solid #f0e4db;
+            margin-top: 20px;
+            color: #6b4d3a;
+            font-size: 0.9rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header-flex {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav {
+                justify-content: center;
+                gap: 16px;
+            }
+            .contact-section {
+                grid-template-columns: 1fr;
+                padding: 30px 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .hero {
+                padding: 40px 0 50px;
+            }
+            .section {
+                padding: 50px 0;
+            }
+            .form-section {
+                padding: 30px 20px;
+            }
+            #map {
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-buttons .btn {
+                width: 100%;
+                text-align: center;
+            }
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container header-flex">
+            <div class="logo">KK <span>Bakery</span></div>
+            <nav>
+                <a href="#menu">Menu</a>
+                <a href="#order">Order</a>
+                <a href="#contact">Contact</a>
+                <a href="#order" class="nav-cta">Order Now</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+        <div class="container">
+            <span class="tagline">Bites of happiness</span>
+            <h1>Khilung kalika fresh bakery</h1>
+            <p>Handcrafted cakes with love, right here in Pokhara. Order online for pickup or delivery.</p>
+            <div class="hero-buttons">
+                <a href="#menu" class="btn">Browse Menu</a>
+                <a href="#order" class="btn btn-order">Place Order</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MENU ===== -->
+    <section class="section" id="menu">
+        <div class="container">
+            <h2 class="section-title">Our Cakes</h2>
+            <p class="section-subtitle">Pick your favorite — or let us create something custom for you.</p>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div>
+                        <div class="emoji-big">🍫</div>
+                        <h3>Classic Chocolate</h3>
+                        <div class="price">Contact for price</div>
+                        <p class="desc">Rich, moist chocolate cake with silky ganache.</p>
+                    </div>
+                    <button class="order-btn-small" onclick="prefillOrder('Classic Chocolate')">Order This</button>
+                </div>
+                <div class="menu-item">
+                    <div>
+                        <div class="emoji-big">🌸</div>
+                        <h3>Bouquet Cake</h3>
+                        <div class="price">Contact for price</div>
+                        <p class="desc">Edible flowers &amp; buttercream — a work of art.</p>
+                    </div>
+                    <button class="order-btn-small" onclick="prefillOrder('Bouquet Cake')">Order This</button>
+                </div>
+                <div class="menu-item">
+                    <div>
+                        <div class="emoji-big">🎂</div>
+                        <h3>Custom Design</h3>
+                        <div class="price">Contact for price</div>
+                        <p class="desc">Your vision, our icing — anything is possible.</p>
+                    </div>
+                    <button class="order-btn-small" onclick="prefillOrder('Custom Design')">Order This</button>
+                </div>
+                <div class="menu-item">
+                    <div>
+                        <div class="emoji-big">🍓</div>
+                        <h3>Strawberry Dream</h3>
+                        <div class="price">Contact for price</div>
+                        <p class="desc">Fresh berries &amp; cream in every layer.</p>
+                    </div>
+                    <button class="order-btn-small" onclick="prefillOrder('Strawberry Dream')">Order This</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ORDER FORM ===== -->
+    <section class="section" id="order">
+        <div class="container">
+            <h2 class="section-title">Place Your Order</h2>
+            <p class="section-subtitle">Fill in the details and we'll confirm via WhatsApp.</p>
+            <div class="form-section">
+                <form id="orderForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Your Name *</label>
+                            <input type="text" id="name" name="name" required placeholder="e.g., Sita Gurung" />
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="e.g., 9841234567" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cake">Cake Choice *</label>
+                            <select id="cake" name="cake" required>
+                                <option value="">-- Select a cake --</option>
+                                <option value="Classic Chocolate">Classic Chocolate</option>
+                                <option value="Bouquet Cake">Bouquet Cake</option>
+                                <option value="Custom Design">Custom Design</option>
+                                <option value="Strawberry Dream">Strawberry Dream</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Pickup / Delivery Date *</label>
+                            <input type="date" id="date" name="date" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="size">Size / Portion</label>
+                        <select id="size" name="size">
+                            <option value="Small (serves 4-6)">Small (serves 4-6)</option>
+                            <option value="Medium (serves 8-12)" selected>Medium (serves 8-12)</option>
+                            <option value="Large (serves 14-20)">Large (serves 14-20)</option>
+                            <option value="Custom size">Custom size</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Special Instructions</label>
+                        <textarea id="message" name="message" placeholder="e.g., Write 'Happy Birthday' on top, eggless, delivery to Lakeside, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="prefer">Preferred Contact</label>
+                        <select id="prefer" name="prefer">
+                            <option value="WhatsApp">WhatsApp</option>
+                            <option value="Phone Call">Phone Call</option>
+                            <option value="Viber">Viber</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-order" style="width:100%; justify-content:center; font-size:1.2rem;">
+                        📩 Send Order to KK Bakery
+                    </button>
+                </form>
+                <div id="form-success">
+                    ✅ Your order has been sent! KK Bakery will confirm with you shortly via WhatsApp/Phone.
+                </div>
+                <div id="form-error">
+                    ❌ Something went wrong. Please try again or call us directly.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== WHY US ===== -->
+    <section class="section" id="why" style="background: #fcf3ed;">
+        <div class="container">
+            <h2 class="section-title">Made with Love</h2>
+            <p class="section-subtitle">Why Pokhara chooses KK Bakery</p>
+            <div class="why-grid">
+                <div class="why-item">
+                    <span class="emoji-big">🧈</span>
+                    <h3>Fresh Ingredients</h3>
+                    <p>Locally sourced butter, cream, and eggs — never frozen.</p>
+                </div>
+                <div class="why-item">
+                    <span class="emoji-big">🎨</span>
+                    <h3>Custom Designs</h3>
+                    <p>From birthdays to weddings — cakes that tell your story.</p>
+                </div>
+                <div class="why-item">
+                    <span class="emoji-big">🏡</span>
+                    <h3>Local &amp; Trusted</h3>
+                    <p>Serving Pokhara with a smile. Stop by our shop in Birauta.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT & LOCATION ===== -->
+    <section class="section" id="contact">
+        <div class="container contact-section">
+            <div class="contact-details">
+                <h2>Visit or Order</h2>
+                <p>📍 <strong>Pokhara-17, Birauta</strong></p>
+                <p>📞 <a href="tel:+9779765142941">9765142941</a></p>
+                <p>💬 <a href="https://wa.me/9779765142941" target="_blank">WhatsApp / Viber</a></p>
+                <p>⏰ Open daily · 9 AM – 8 PM</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/kk_bakery.pkr/" target="_blank" aria-label="Instagram">📷</a>
+                    <a href="https://wa.me/9779765142941" target="_blank" aria-label="WhatsApp">💬</a>
+                    <a href="viber://chat?number=9779765142941" target="_blank" aria-label="Viber">📞</a>
+                </div>
+                <p style="margin-top: 24px; font-style: italic; color: #b8735c;">
+                    “Imagine being loved the way you love.”
+                </p>
+            </div>
+            <div>
+                <h2 style="font-size: 1.4rem; margin-bottom: 12px;">Find Us</h2>
+                <div id="map"></div>
+                <p style="margin-top: 12px; font-size: 0.9rem; color: #6b4d3a;">
+                    We're in Birauta — stop by for a fresh slice!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 KK Bakery · Khilung kalika fresh bakery · Pokhara</p>
+            <p style="margin-top: 6px; font-size: 0.8rem;">Bites of happiness, baked fresh daily.</p>
+        </div>
+    </footer>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ============================================================
+        // 1. INTERACTIVE MAP (Leaflet)
+        // ============================================================
+        try {
+            const map = L.map('map').setView([28.2096, 83.9856], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            L.marker([28.2096, 83.9856])
+                .addTo(map)
+                .bindPopup('<strong>KK Bakery</strong><br />Pokhara-17, Birauta<br />🍰 Bites of happiness')
+                .openPopup();
+            L.circle([28.2096, 83.9856], {
+                radius: 150,
+                color: '#b8735c',
+                fillColor: '#b8735c',
+                fillOpacity: 0.15
+            }).addTo(map);
+        } catch (e) {
+            console.log('Map error:', e);
+            document.getElementById('map').innerHTML = '📍 Pokhara-17, Birauta';
+        }
+
+        // ============================================================
+        // 2. PREFILL ORDER (from menu buttons)
+        // ============================================================
+        function prefillOrder(cakeName) {
+            const cakeSelect = document.getElementById('cake');
+            if (cakeSelect) {
+                for (let option of cakeSelect.options) {
+                    if (option.text === cakeName || option.value === cakeName) {
+                        cakeSelect.value = option.value;
+                        break;
+                    }
+                }
+                if (cakeSelect.value === '') {
+                    cakeSelect.value = 'Other (specify below)';
+                    const msgField = document.getElementById('message');
+                    if (msgField) msgField.value = `I'd like to order: ${cakeName}. Please confirm.`;
+                }
+            }
+            document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ============================================================
+        // 3. FORM SUBMISSION (send to backend)
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('orderForm');
+            const successDiv = document.getElementById('form-success');
+            const errorDiv = document.getElementById('form-error');
+
+            console.log('✅ Form found:', form ? 'Yes' : 'No');
+
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('📝 Form submitted');
+
+                    // Hide previous messages
+                    successDiv.style.display = 'none';
+                    errorDiv.style.display = 'none';
+
+                    // Collect data
+                    const formData = new FormData(form);
+                    const orderData = {
+                        name: formData.get('name'),
+                        phone: formData.get('phone'),
+                        cake: formData.get('cake'),
+                        size: formData.get('size'),
+                        date: formData.get('date'),
+                        message: formData.get('message'),
+                        prefer: formData.get('prefer')
+                    };
+
+                    console.log('📦 Order data:', orderData);
+
+                    // Validate
+                    if (!orderData.name || !orderData.phone || !orderData.cake || !orderData.date) {
+                        alert('Please fill in all required fields (*)');
+                        return;
+                    }
+
+                    try {
+                        console.log('📤 Sending to /api/orders...');
+                        const response = await fetch('/api/orders', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(orderData)
+                        });
+
+                        console.log('📥 Response status:', response.status);
+                        const result = await response.json();
+                        console.log('📥 Response data:', result);
+
+                        if (result.success) {
+                            form.style.display = 'none';
+                            successDiv.style.display = 'block';
+                            console.log('✅ Order placed successfully!');
+                        } else {
+                            errorDiv.style.display = 'block';
+                            console.log('❌ Server error:', result.error);
+                        }
+                    } catch (error) {
+                        console.error('❌ Network error:', error);
+                        errorDiv.style.display = 'block';
+                        errorDiv.textContent = '❌ Network error: ' + error.message;
+                    }
+                });
+            }
+
+            // Set default date to tomorrow
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                dateInput.value = tomorrow.toISOString().split('T')[0];
+            }
+
+            console.log('✅ KK Bakery website loaded');
+        });
+    </script>
+
+</body>
+</html>
