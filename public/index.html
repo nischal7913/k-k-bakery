@@ -664,25 +664,35 @@
         // ============================================================
         // 1. INTERACTIVE MAP (Leaflet)
         // ============================================================
-        try {
-            const map = L.map('map').setView([28.2096, 83.9856], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-            L.marker([28.2096, 83.9856])
-                .addTo(map)
-                .bindPopup('<strong>KK Bakery</strong><br />Pokhara-17, Birauta<br />🍰 Bites of happiness')
-                .openPopup();
-            L.circle([28.2096, 83.9856], {
-                radius: 150,
-                color: '#b8735c',
-                fillColor: '#b8735c',
-                fillOpacity: 0.15
-            }).addTo(map);
-        } catch (e) {
-            console.log('Map error:', e);
-            document.getElementById('map').innerHTML = '📍 Pokhara-17, Birauta';
-        }
+      // ===== MAP =====
+try {
+    // Correct coordinates for Birauta-17, Pokhara
+    const bakeryLat = 28.1934;
+    const bakeryLng = 83.97134;
+    
+    const map = L.map('map').setView([bakeryLat, bakeryLng], 17);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    L.marker([bakeryLat, bakeryLng])
+        .addTo(map)
+        .bindPopup('<strong>KK Bakery</strong><br />Pokhara-17, Birauta<br />🍰 Bites of happiness')
+        .openPopup();
+        
+    // Optional: Add a circle around the location
+    L.circle([bakeryLat, bakeryLng], {
+        radius: 100,
+        color: '#b8735c',
+        fillColor: '#b8735c',
+        fillOpacity: 0.15
+    }).addTo(map);
+    
+} catch (e) {
+    console.log('Map error:', e);
+    document.getElementById('map').innerHTML = '📍 Pokhara-17, Birauta';
+}
 
         // ============================================================
         // 2. PREFILL ORDER (from menu buttons)
