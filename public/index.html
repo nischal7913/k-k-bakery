@@ -685,10 +685,8 @@
         // ============================================================
         try {
             // Approximate coordinates for Pokhara
-            const bakeryLat = 28.228263;
-            const bakeryLng = 83.988988;
-
-            const map = L.map('map').setView([bakeryLat, bakeryLng], 15);
+           const map = L.map('map').setView([28.2281115, 83.9889882], 17);
+            
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
