@@ -10,17 +10,16 @@ app.use(express.static('public'));
 const orders = [];
 
 // ===== ADMIN PASSWORD =====
-// Change this to your own password!
-const ADMIN_PASSWORD = 'kkbakery2026';
+const ADMIN_PASSWORD = 'blissful2026';
 
-console.log('🔵 KK Bakery Server Starting...');
+console.log('🔵 Blissful Cakes Server Starting...');
 
 // Test endpoint
 app.get('/test', (req, res) => {
     res.json({ message: '✅ Server is working!' });
 });
 
-// ===== PLACE AN ORDER =====
+// Place an order
 app.post('/api/orders', (req, res) => {
     console.log('📦 Received order:', req.body);
     
@@ -37,14 +36,13 @@ app.post('/api/orders', (req, res) => {
     res.json({ success: true, order });
 });
 
-// ===== GET ALL ORDERS (API) =====
+// Get all orders (API)
 app.get('/api/orders', (req, res) => {
     res.json(orders);
 });
 
 // ===== ADMIN DASHBOARD WITH PASSWORD PROTECTION =====
 app.get('/admin', (req, res) => {
-    // Check if user has the correct password
     const password = req.query.password;
     
     if (password !== ADMIN_PASSWORD) {
@@ -53,7 +51,7 @@ app.get('/admin', (req, res) => {
             <!DOCTYPE html>
             <html>
             <head>
-                <title>Admin Login - KK Bakery</title>
+                <title>Admin Login - Blissful Cakes</title>
                 <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body { 
@@ -82,11 +80,10 @@ app.get('/admin', (req, res) => {
                         border-radius: 16px;
                         font-size: 1rem;
                         margin-bottom: 16px;
-                        transition: border 0.3s;
                     }
-                    input:focus { border-color: #b8735c; outline: none; }
+                    input:focus { border-color: #e91e63; outline: none; }
                     .btn {
-                        background: #b8735c;
+                        background: #e91e63;
                         color: #fff;
                         padding: 14px 36px;
                         border-radius: 50px;
@@ -95,15 +92,9 @@ app.get('/admin', (req, res) => {
                         cursor: pointer;
                         width: 100%;
                         font-size: 1rem;
-                        transition: background 0.3s;
                     }
-                    .btn:hover { background: #9e5f4a; }
-                    .error { 
-                        color: #dc3545; 
-                        margin-top: 12px; 
-                        display: none;
-                        font-size: 0.9rem;
-                    }
+                    .btn:hover { background: #c2185b; }
+                    .error { color: #dc3545; margin-top: 12px; display: none; }
                 </style>
             </head>
             <body>
@@ -120,13 +111,7 @@ app.get('/admin', (req, res) => {
                     function login(e) {
                         e.preventDefault();
                         const password = document.getElementById('passwordInput').value;
-                        const url = '/admin?password=' + encodeURIComponent(password);
-                        window.location.href = url;
-                    }
-                    
-                    // Check if there's an error in the URL
-                    if (window.location.search.includes('error=1')) {
-                        document.getElementById('errorMsg').style.display = 'block';
+                        window.location.href = '/admin?password=' + encodeURIComponent(password);
                     }
                 </script>
             </body>
@@ -135,54 +120,50 @@ app.get('/admin', (req, res) => {
         return;
     }
     
-    // ===== SHOW ADMIN DASHBOARD (Password Correct) =====
+    // Show admin dashboard
     let html = `
     <!DOCTYPE html>
     <html>
     <head>
-        <title>KK Bakery Admin</title>
+        <title>Blissful Cakes Admin</title>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Segoe UI', sans-serif; padding: 30px; background: #fefaf5; }
-            h1 { color: #2d1f14; margin-bottom: 20px; font-family: 'Georgia', serif; }
-            .logout { float: right; color: #b8735c; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
-            .logout:hover { text-decoration: underline; }
+            h1 { color: #2d1f14; margin-bottom: 20px; }
+            .logout { float: right; color: #e91e63; text-decoration: none; font-weight: 600; }
             .stats { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
-            .stat-card { background: #fff; padding: 20px 30px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-left: 4px solid #b8735c; }
-            .stat-card .number { font-size: 2rem; font-weight: 700; color: #b8735c; }
-            .stat-card .label { color: #6b4d3a; font-size: 0.9rem; }
+            .stat-card { background: #fff; padding: 20px 30px; border-radius: 16px; border-left: 4px solid #e91e63; }
+            .stat-card .number { font-size: 2rem; font-weight: 700; color: #e91e63; }
+            .stat-card .label { color: #6b4d3a; }
             table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-            th { background: #b8735c; color: #fff; padding: 14px; text-align: left; }
+            th { background: #e91e63; color: #fff; padding: 14px; text-align: left; }
             td { padding: 14px; border-bottom: 1px solid #f0e4db; }
-            tr:hover { background: #fcf3ed; }
+            tr:hover { background: #fce4ec; }
             .empty { text-align: center; padding: 40px; color: #6b4d3a; }
             .badge { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: #fef9e7; color: #f39c12; }
-            .refresh-btn { background: #b8735c; color: #fff; border: none; padding: 10px 24px; border-radius: 50px; cursor: pointer; font-weight: 600; margin-bottom: 20px; }
-            .refresh-btn:hover { background: #9e5f4a; }
-            .nav-link { display: inline-block; margin-bottom: 20px; color: #b8735c; text-decoration: none; font-weight: 600; }
-            .nav-link:hover { text-decoration: underline; }
+            .refresh-btn { background: #e91e63; color: #fff; border: none; padding: 10px 24px; border-radius: 50px; cursor: pointer; font-weight: 600; margin-bottom: 20px; }
+            .refresh-btn:hover { background: #c2185b; }
         </style>
     </head>
     <body>
-        <h1>🧁 KK Bakery - Orders <a href="/admin" class="logout">Logout</a></h1>
+        <h1>🧁 Blissful Cakes - Orders <a href="/admin" class="logout">Logout</a></h1>
         <div class="stats">
             <div class="stat-card"><div class="number">${orders.length}</div><div class="label">Total Orders</div></div>
             <div class="stat-card"><div class="number">${orders.filter(o => o.status === 'pending').length}</div><div class="label">Pending</div></div>
         </div>
         <button class="refresh-btn" onclick="location.reload()">🔄 Refresh</button>
         <table>
-            <tr><th>#</th><th>Name</th><th>Phone</th><th>Cake</th><th>Size</th><th>Date</th><th>Status</th></tr>`;
+            <tr><th>#</th><th>Name</th><th>Phone</th><th>Cake</th><th>Date</th><th>Status</th></tr>`;
     
     if (orders.length === 0) {
-        html += `<tr><td colspan="7" class="empty">No orders yet. Share the website with customers!</td></tr>`;
+        html += `<tr><td colspan="6" class="empty">No orders yet</td></tr>`;
     } else {
         orders.forEach((o, i) => {
             html += `<tr>
                 <td>${i + 1}</td>
                 <td><strong>${o.name}</strong></td>
-                <td><a href="tel:${o.phone}" style="color:#b8735c;">${o.phone}</a></td>
+                <td><a href="tel:${o.phone}" style="color:#e91e63;">${o.phone}</a></td>
                 <td>${o.cake}</td>
-                <td>${o.size || '-'}</td>
                 <td>${o.date}</td>
                 <td><span class="badge">${o.status}</span></td>
             </tr>`;
@@ -190,24 +171,22 @@ app.get('/admin', (req, res) => {
     }
     
     html += `</table>
-        <p style="margin-top: 20px; color: #6b4d3a; font-size: 0.9rem;">
-            📍 <a href="/" style="color:#b8735c;">Back to website</a>
-        </p>
+        <p style="margin-top: 20px;"><a href="/" style="color:#e91e63;">← Back to Website</a></p>
     </body></html>`;
     res.send(html);
 });
 
-// ===== HOMEPAGE =====
+// Homepage
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ===== START SERVER =====
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`✅ Server running on http://localhost:${PORT}`);
     console.log(`📊 Admin: http://localhost:${PORT}/admin`);
     console.log(`🔐 Admin Password: ${ADMIN_PASSWORD}`);
     console.log(`🧪 Test: http://localhost:${PORT}/test`);
-    console.log('🎂 KK Bakery is ready to take orders!');
+    console.log('🎂 Blissful Cakes is ready to take orders!');
 });
